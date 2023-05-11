@@ -5,7 +5,7 @@ def removeStopWords(doc: str) -> str:
         stopWords = f.readlines()
         for i in range(len(stopWords)):
             stopWords[i] = stopWords[i][:-1]
-    return ''.join([word for word in doc.split() if word not in stopWords])
+    return ' '.join([word for word in doc.split() if word not in stopWords])
 
 def expNormalization(exp: str) -> str:
     exp = ''.join([c.lower() for c in exp if c.isalpha() or c.isspace() or c in ['!','(',')','&','|']])
