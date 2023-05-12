@@ -1,16 +1,18 @@
+import spacy
+nlp = spacy.load('en_core_web_sm')
+
 def docNormalization(doc: str) -> str:
     return ''.join([c.lower() for c in list(doc) if c.isalpha() or c.isspace()])
-def removeStopWords(doc: str) -> str:
-    with open('stopwords.txt') as f:
-        stopWords = f.readlines()
-        for i in range(len(stopWords)):
-            stopWords[i] = stopWords[i][:-1]
-    return ' '.join([word for word in doc.split() if word not in stopWords])
+
+def docLemmatizationAndStopwordRemoval(doc):
+    ret = ' '.join([token.lemma_ if not (token.is_stop or token.is_punct or token.is_digit or token.is_space) else '' for token in nlp(doc)])
+    return ' '.join(ret.split())
 
 def expNormalization(exp: str) -> str:
     exp = ''.join([c.lower() for c in exp if c.isalpha() or c.isspace() or c in ['!','(',')','&','|']])
     exp = ''.join([c.lower() if c.isalpha() else f' {c} ' if not c.isspace() else '' for c in exp])
     exp = ' '.join(exp.split())
+    exp = ' '.join([token.lemma_ for token in nlp(exp)])
     return exp
 
 def notOpBool(l:list[bool]) -> list[bool]:
@@ -132,7 +134,7 @@ def main() -> None:
             print('Invalid input try again!')
             continue
         docs = [input(f'Enter document {i+1}: ').strip() for i in range(int(nDocs))]
-        docs = [removeStopWords(docNormalization(d)) for d in docs]
+        docs = [docLemmatizationAndStopwordRemoval(docNormalization(d)) for d in docs]
         expresion = input('Enter your query: ').strip()
         expresion = infix2postfix(expNormalization(expresion))
         while (choice := input('Enter 1 for Boolean Retrieval or 2 for Inverted Index: ').strip()) not in ('1','2'):
