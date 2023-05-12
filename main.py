@@ -86,7 +86,7 @@ def expresionEval(terms: dict[str:list[bool|int]],exp: str,choice: int,nDocs:int
     stack = []
     for ele in exp:
         if ele.isalpha():
-            stack.append(terms[ele])
+            stack.append(terms[ele] if terms.get(ele) else [])
         elif ele == '!':
             last = stack.pop()
             stack.append(notOpBool(last) if choice == 1 else notOpInverted(last,nDocs))
@@ -127,7 +127,7 @@ def invertedIndx(docs: list[str],exp: str,nDocs:int = -1) -> list[int]:
 
 def main() -> None:
     print('\nWelcome to our search engine!\n')
-    while (nDocs := input('Enter number of documents you want to search in (q to exit): ').strip()) != 'q':
+    while (nDocs := input('Enter number of documents you want to search in (q to exit): ').strip().lower()) != 'q':
         if not nDocs.isdecimal():
             print('Invalid input try again!')
             continue
@@ -139,15 +139,22 @@ def main() -> None:
             print('Invalid input try agian!')
         if choice == '1':
             res = booleanRetrieval(docs,expresion)
+            found = 0
             for id,val in enumerate(res,1):
                 if val:
+                    found = 1
                     print(f'Query is found in Doc{id}')
+            if not found:
+                print('There is no search result for this query!')
         else:
             res = invertedIndx(docs,expresion,int(nDocs))
+            found = 0
             for val in res:
+                found = 1
                 print(f'Query found in Doc{val}')
+            if not found:
+                print('There is no search result for this query!')
         
 
 if __name__ == '__main__':
     main()
-
